@@ -21,6 +21,19 @@ import (
 // Stores known subcommands.
 type Map map[string]func()
 
+// Adds a command, panicking if the key is redundant or if the function is nil.
+func (self Map) Add(key string, val func()) {
+	if self[key] != nil {
+		panic(fmt.Errorf(`redundant command %q`, key))
+	}
+
+	if val == nil {
+		panic(fmt.Errorf(`nil command %q`, key))
+	}
+
+	self[key] = val
+}
+
 // Keys of known subcommands, stored alphabetically.
 func (self Map) Keys() []string {
 	out := make([]string, 0, len(self))

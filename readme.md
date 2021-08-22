@@ -96,7 +96,7 @@ func main() {
   commands.Get()()
 }
 
-func init() { commands[`one`] = cmdOne }
+func init() { commands.Add(`one`, cmdOne) }
 
 func cmdOne() {
   flagB := flag.Bool(`b`, false, `flag "b"`)
@@ -109,7 +109,7 @@ func cmdOne() {
   )
 }
 
-func init() { commands[`two`] = cmdTwo }
+func init() { commands.Add(`two`, cmdTwo) }
 
 func cmdTwo() {
   flagC := flag.Bool(`c`, false, `flag "c"`)
