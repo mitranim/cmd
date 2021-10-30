@@ -43,9 +43,8 @@ func (self Map) Get() func() {
 	}
 
 	cmd := args[0]
-	fun := self[cmd]
-
-	if fun == nil {
+	fun, ok := self[cmd]
+	if !ok {
 		panic(fmt.Errorf(`unrecognized command %q; %v`, cmd, self.known()))
 	}
 
