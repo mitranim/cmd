@@ -1,14 +1,3 @@
-/*
-Missing feature of the Go standard library: ability to define subcommands while
-using `flag`.
-
-	* Complements `flag` by adding subcommands.
-	* Does not reinvent flag parsing.
-	* Does not pollute your stacktraces.
-	* Tiny, no external dependencies.
-
-See `readme.md` and the `examples` folder.
-*/
 package cmd
 
 import (
@@ -24,10 +13,10 @@ type Map map[string]func()
 // Adds a command, panicking if the key is redundant or if the function is nil.
 func (self Map) Add(key string, val func()) {
 	if val == nil {
-		panic(fmt.Errorf(`nil command %q`, key))
+		panic(fmt.Errorf(`[cmd] nil command %q`, key))
 	}
 	if self[key] != nil {
-		panic(fmt.Errorf(`redundant command %q`, key))
+		panic(fmt.Errorf(`[cmd] redundant command %q`, key))
 	}
 	self[key] = val
 }
@@ -39,13 +28,19 @@ remaining args for subsequent `flag.Parse` calls.
 func (self Map) Get() func() {
 	args := Args()
 	if len(args) == 0 {
-		panic(fmt.Errorf(`missing command; %v`, self.known()))
+		panic(fmt.Errorf(
+			`[cmd] missing command; known commands: %q`,
+			self.Keys(),
+		))
 	}
 
 	cmd := args[0]
 	fun, ok := self[cmd]
 	if !ok {
-		panic(fmt.Errorf(`unrecognized command %q; %v`, cmd, self.known()))
+		panic(fmt.Errorf(
+			`[cmd] unrecognized command %q; known commands: %q`,
+			cmd, self.Keys(),
+		))
 	}
 
 	os.Args = args
@@ -60,10 +55,6 @@ func (self Map) Keys() []string {
 	}
 	sort.Strings(out)
 	return out
-}
-
-func (self Map) known() string {
-	return fmt.Sprintf(`known commands: %q`, self.Keys())
 }
 
 /*
@@ -85,7 +76,7 @@ a non-zero status. Otherwise, it's a nop.
 func Report() {
 	val := recover()
 	if val != nil {
-		fmt.Fprintf(flag.CommandLine.Output(), "[cmd] %T: %+v\n", val, val)
+		fmt.Fprintf(flag.CommandLine.Output(), "%+v\n", val)
 		os.Exit(1)
 	}
 }
